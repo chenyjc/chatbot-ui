@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chatbot</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,10 +13,41 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-color: white;
+            --text-color: #1a1a1a;
+            --secondary-text: #666;
+            --border-color: #eee;
+            --message-bg: #f0f0f0;
+            --user-message-bg: #007AFF;
+            --user-message-color: white;
+            --hover-bg: #f0f0f0;
+            --input-bg: white;
+            --button-bg: #007AFF;
+            --button-color: white;
+            --button-hover: #0056b3;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --secondary-text: #aaa;
+            --border-color: #333;
+            --message-bg: #2a2a2a;
+            --user-message-bg: #0056b3;
+            --user-message-color: #f0f0f0;
+            --hover-bg: #333;
+            --input-bg: #2a2a2a;
+            --button-bg: #0056b3;
+            --button-color: #f0f0f0;
+            --button-hover: #007AFF;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
-            background: white;
+            background: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
             height: 100vh;
@@ -26,7 +58,7 @@
             max-width: 1000px;
             margin: 0 auto;
             height: 100vh;
-            background: white;
+            background: var(--bg-color);
             border-radius: 0;
             box-shadow: none;
             display: flex;
@@ -35,7 +67,7 @@
 
         .chat-header {
             padding: 8px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
             text-align: center;
         }
 
@@ -60,13 +92,15 @@
             max-width: 100%;
             padding: 12px 16px;
             border-radius: 15px;
-            background: #f0f0f0;
+            background: var(--message-bg);
+            color: var(--text-color);
             margin: 0;
+            word-wrap: break-word;
         }
 
         .message.user .message-content {
-            background: #007AFF;
-            color: white;
+            background: var(--user-message-bg);
+            color: var(--user-message-color);
         }
 
         .avatar {
@@ -87,12 +121,12 @@
 
         .chat-input {
             padding: 12px;
-            border-top: 1px solid #eee;
         }
 
         .input-container {
             display: flex;
             gap: 10px;
+            align-items: flex-end;
         }
 
         textarea {
@@ -288,7 +322,7 @@
             z-index: 999;
         }
 
-        /* 修改建议问题的样式 */
+        /* Style for suggested questions */
         .suggested-questions {
             padding: 8px;
             display: flex;
@@ -330,7 +364,7 @@
             color: white;
         }
 
-        /* 修改消息中的相关问题样式 */
+        /* Style for related questions in messages */
         .message-wrapper .suggested-questions {
             padding: 4px 0 0 0;
         }
@@ -343,13 +377,13 @@
             justify-content: flex-start;
         }
 
-        /* 修改标题样式 */
+        /* Header style */
         .chat-header h2 {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            color: #1a1a1a;
+            color: var(--text-color);
         }
 
         .chat-header i {
@@ -359,7 +393,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* 在style中添加语音按钮样式 */
+        /* Voice button styles */
         .voice-buttons {
             display: flex;
             gap: 8px;
@@ -383,33 +417,7 @@
             background: #f0f0f0;
         }
 
-        .voice-button.active {
-            color: #007AFF;
-            background: #e6f0ff;
-        }
-
-        .input-wrapper {
-            flex: 1;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: white;
-            padding: 0 8px;
-        }
-
-        .input-wrapper textarea {
-            border: none;
-            flex: 1;
-            background: transparent;
-        }
-
-        .input-wrapper textarea:focus {
-            outline: none;
-        }
-
-        /* 添加样式以显示语音输入按钮的激活状态 */
+        /* Voice input button active state styles */
         .voice-button {
             opacity: 1;
             cursor: pointer;
@@ -424,14 +432,12 @@
             background: #f0f0f0;
         }
 
-        /* 添加版权信息样式 */
+        /* Copyright styles */
         .copyright {
             text-align: center;
             padding: 8px;
-            color: #666;
+            color: var(--secondary-text);
             font-size: 12px;
-            border-top: 1px solid #eee;
-            background: #f8f9fa;
         }
 
         .copyright a {
@@ -442,11 +448,102 @@
         .copyright a:hover {
             text-decoration: underline;
         }
+
+        /* Theme toggle button styles */
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--secondary-text);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+        }
+
+        /* Additional style adjustments */
+        .question-button {
+            background: var(--message-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .action-button {
+            color: var(--secondary-text);
+        }
+
+        .action-button:hover {
+            background: var(--hover-bg);
+        }
+
+        /* Add back the input wrapper styles */
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--input-bg);
+            padding: 0 8px;
+        }
+
+        .input-wrapper textarea {
+            border: none;
+            flex: 1;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        .input-wrapper textarea:focus {
+            outline: none;
+        }
+
+        /* 修改发送按钮样式 */
+        .send-button {
+            background: none;
+            border: none;
+            padding: 8px;
+            color: var(--secondary-text);
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            align-self: flex-end;
+            margin-bottom: 7px;
+        }
+
+        .send-button:hover {
+            color: #007AFF;
+        }
+
+        .send-button:disabled {
+            color: var(--secondary-text);
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: none;
+        }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
             <h2><i class="fas fa-robot"></i>AI Assistant</h2>
         </div>
         <div class="chat-messages" id="chat-messages">
@@ -466,7 +563,9 @@
                         </button>
                     </div>
                 </div>
-                <button onclick="sendMessage()">Send</button>
+                <button class="send-button" onclick="sendMessage()" title="Send message">
+                    <i class="far fa-paper-plane"></i>
+                </button>
             </div>
         </div>
         <div class="copyright">
@@ -496,7 +595,7 @@
             }
         });
 
-        function addMessage(content, isUser = false) {
+        function addMessage(content, isUser = false, isMarkdown = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : ''}`;
             
@@ -509,7 +608,16 @@
 
             const messageContent = document.createElement('div');
             messageContent.className = 'message-content';
-            messageContent.textContent = content;
+            if (isMarkdown) {
+                if (typeof marked !== 'undefined') {
+                    messageContent.innerHTML = marked.marked(content);
+                } else {
+                    console.error('Marked library is not available.');
+                    messageContent.innerHTML = content;
+                }
+            } else {
+                messageContent.innerHTML = content;
+            }
 
             messageWrapper.appendChild(messageContent);
 
@@ -647,7 +755,7 @@
             messageWrapper.appendChild(questionsDiv);
         }
 
-        function streamMessage(message, messageContent, stopButton, actionsDiv, messageWrapper) {
+        function streamMessage(message, messageContent, stopButton, actionsDiv, messageWrapper, isMarkdown = false) {
             return new Promise((resolve) => {
                 let index = 0;
                 isStreaming = true;
@@ -665,7 +773,16 @@
                         return;
                     }
 
-                    messageContent.textContent += message[index];
+                    if (isMarkdown) {
+                        if (typeof marked !== 'undefined') {
+                            messageContent.innerHTML = marked.marked(message.slice(0, index));
+                        } else {
+                            console.error('Marked library is not available.');
+                            messageContent.innerHTML = message.slice(0, index);
+                        }
+                    } else {
+                        messageContent.innerHTML = message.slice(0, index);
+                    }
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                     index++;
                     
@@ -801,10 +918,10 @@
             chatMessages.appendChild(messageDiv);
 
             // Simulate response text
-            const response = "This is a simulated streaming response. In a real implementation, you would connect to your backend API and handle the streaming response accordingly.";
+            const response = "This is a **simulated** streaming response. In a real implementation, you would connect to your backend API and handle the streaming response accordingly.";
             
             // Show response with typing effect
-            await streamMessage(response, messageContent, stopButton, actionsDiv, messageWrapper);
+            await streamMessage(response, messageContent, stopButton, actionsDiv, messageWrapper, true);
         }
 
         // Create feedback form
@@ -881,10 +998,25 @@
             chatMessages.appendChild(questionsDiv);
         }
 
-        // Show suggested questions on page load
+        // Check and apply saved theme on page load
         document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+            const themeToggle = document.querySelector('.theme-toggle i');
+            
+            if (savedTheme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+                themeToggle.className = 'fas fa-sun';
+            }
+            
             addSuggestedQuestions();
             updateSendButtonState();
+
+            if (typeof marked === 'undefined') {
+                console.error('Marked library is not loaded.');
+            } else {
+                console.log('Marked library loaded successfully.');
+            }
         });
 
         // Voice related variables
@@ -998,6 +1130,22 @@
 
         // Add button event listeners
         document.getElementById('voice-input').addEventListener('click', toggleVoiceInput);
+
+        // Add theme toggle function
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeToggle = document.querySelector('.theme-toggle i');
+            
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.removeAttribute('data-theme');
+                themeToggle.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeToggle.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
     </script>
 </body>
 </html>
